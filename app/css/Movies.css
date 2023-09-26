@@ -1,0 +1,13 @@
+.defaultButton {
+    background-color: white;
+    border-color: blue;
+    color: blue;
+  }
+  
+  .hoveredButton {
+    background-color: blue;
+    border-color: blue;
+    color: white;
+  }
+  
+  
