@@ -1,3 +1,23 @@
+type User =  {
+  _id?: string
+  email: string;
+  password: string;
+  sessionTimeOut: number;
+  createdAt: Date;
+  role?: string;
+};
+
+// Type for Permission document
+type Permission = {
+  name: string;
+  role: string;
+  userId: import('mongoose').Schema.Types.ObjectId; // Assuming userId is a reference to another object ID
+};
+type Subscription = {
+  userId: import('mongoose').Schema.Types.ObjectId;
+  movies: [string];
+};
+
 type Input = {
   label: string;
   name: string;
@@ -24,7 +44,7 @@ type WebChannel = {
 };
 
 type Movie = {
-  id?: number;
+  _id?: number;
   url: string;
   name: string;
   type?: string;

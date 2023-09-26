@@ -1,24 +1,28 @@
-import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
+import mongoose, { Document, Model, Schema, Types } from 'mongoose';
+import bcrypt from 'bcryptjs';
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-  },
+interface IUser extends Document {
+  email: string;
+  password: string;
+  sessionTimeOut: Number; // New field for userId
+  createdAt: Date;
+}
+
+const userSchema: Schema<IUser> = new mongoose.Schema({
   email: {
     type: String,
-    required: [true, "Please enter your email"],
+    required: [true, 'Please enter your email'],
     unique: true,
   },
   password: {
     type: String,
-    required: [true, "Please enter your password"],
-    minLength: [6, "Your password must be longer than 6 characters"],
+    required: [true, 'Please enter your password'],
+    minLength: [6, 'Your password must be longer than 6 characters'],
     select: false,
   },
-  role: {
-    type: String,
-    default: "user",
+  sessionTimeOut: {
+    type: Number,
+    default: 30000,
   },
   createdAt: {
     type: Date,
@@ -26,12 +30,14 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
     next();
   }
 
   this.password = await bcrypt.hash(this.password, 10);
 });
 
-export default mongoose.models?.User || mongoose.model("User", userSchema);
+const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', userSchema, 'User');
+
+export default User;

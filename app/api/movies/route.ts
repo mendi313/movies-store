@@ -1,6 +1,6 @@
 import { connectDB } from '@/connect/connect';
 import { NextRequest, NextResponse } from 'next/server';
-import Movies from '@/moviesSchema/movies';
+import Movies from '@/backend/models/movies';
 
 connectDB();
 
@@ -30,23 +30,23 @@ export async function POST(request: NextRequest) {
 
     // Validate input data
     if (!newMovie.name) {
-      return  NextResponse.json('Name is required', { status: 400 });
+      return NextResponse.json('Name is required', { status: 400 });
     }
 
     if (!newMovie.genres || newMovie.genres.length === 0) {
-      return  NextResponse.json('Genres is required', { status: 400 });
+      return NextResponse.json('Genres is required', { status: 400 });
     }
 
     if (!newMovie.image || !newMovie.image.medium || !newMovie.image.original) {
-      return  NextResponse.json('Image is required with medium and original URLs', { status: 400 });
+      return NextResponse.json('Image is required with medium and original URLs', { status: 400 });
     }
 
     if (!newMovie.premiered) {
-      return  NextResponse.json('Premiered is required', { status: 400 });
+      return NextResponse.json('Premiered is required', { status: 400 });
     }
 
     const response = await Movies.create(newMovie);
-    return  NextResponse.json(response, { status: 201 });
+    return NextResponse.json(response, { status: 201 });
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(error.message);
@@ -55,7 +55,6 @@ export async function POST(request: NextRequest) {
     }
   }
 }
-
 
 export async function DELETE(request: NextRequest) {
   const id = request.nextUrl.searchParams.get('id');

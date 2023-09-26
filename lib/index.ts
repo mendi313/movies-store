@@ -1,4 +1,4 @@
-import Movies from '@/moviesSchema/movies';
+import Movies from '@/backend/models/movies';
 import MoviesData from '../data/movies.json';
 
 // export default async function createMoviesFromData() {
