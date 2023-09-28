@@ -37,7 +37,7 @@ export const options: NextAuthOptions = {
 
         const user: User = await User.findOne({ email }).select('+password');
         const permission: Permission | null = await Permission.findOne({ userId: user._id });
-        user.role = permission?.role;
+        if (permission?.role) user.role = permission?.role;
 
         if (!user) {
           throw new Error('Invalid Email');
@@ -68,7 +68,7 @@ export const options: NextAuthOptions = {
         const email = token.email; // Assuming token.email holds the email you want to search for
         try {
           const user = await User.findOne({ email }).select('+password');
-          if (session?.user) session.user.id = user?._id
+          if (session?.user) session.user.id = user?._id;
         } catch (error) {
           console.error('Error finding user:', error);
         }

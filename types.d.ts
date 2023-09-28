@@ -1,10 +1,17 @@
-type User =  {
-  _id?: string
-  email: string;
-  password: string;
-  sessionTimeOut: number;
-  createdAt: Date;
-  role?: string;
+type User = {
+  name: string;
+  _id?: string;
+  email?: string;
+  password?: string;
+  sessionTimeOut?: number;
+  createdAt?: Date;
+  role: string;
+};
+
+type FormInputsData = {
+  state: 'register' | 'login' | 'addUser' | 'editUser';
+  title: string;
+  func: (formInputs: { name: string; email: string; password: string; role: string }) => void;
 };
 
 // Type for Permission document
@@ -13,6 +20,7 @@ type Permission = {
   role: string;
   userId: import('mongoose').Schema.Types.ObjectId; // Assuming userId is a reference to another object ID
 };
+
 type Subscription = {
   userId: import('mongoose').Schema.Types.ObjectId;
   movies: [string];
@@ -75,7 +83,7 @@ type Movie = {
   externals?: {
     tvrage: number;
     thetvdb: number | null;
-    imdb: string | null;  // Updated type to string | null
+    imdb: string | null; // Updated type to string | null
   };
   updated?: number;
   _links?: {
@@ -87,8 +95,3 @@ type Movie = {
     };
   };
 };
-
-
-
-
-

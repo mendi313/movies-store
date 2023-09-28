@@ -1,9 +1,10 @@
-// RootLayout.tsx
+import React from 'react';
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Header from './(Header)/Header'; // Import Header component
 import AuthProvider from './context/AuthProvider';
+import Context from './context/Context';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -15,14 +16,14 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        {/* Add your head content here if needed */}
-      </head>
-      <body className="flex text-center items-center flex-col min-h-screen">
-        <header> {/* Place Header component here */}
-          <Header />
-        </header>
-        <AuthProvider>{children}</AuthProvider>
+      <head>{/* Add your head content here if needed */}</head>
+      <body>
+        <AuthProvider>
+          <Context>
+            <Header />
+            {children}
+          </Context>
+        </AuthProvider>
       </body>
     </html>
   );

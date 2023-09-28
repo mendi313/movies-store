@@ -54,7 +54,6 @@ export default function AddMoviePage() {
     }
 
     await axios.post('http://localhost:3000/api/movies', formData).then((res) => {
-      console.log(res.data);
       router.push('/');
     });
     // Add logic to handle form submission (e.g., sending data to server)
@@ -70,8 +69,6 @@ export default function AddMoviePage() {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    console.log('dfg');
-
     const { name, value } = e.target;
 
     // For the date input, convert the value to a Date object
@@ -81,7 +78,6 @@ export default function AddMoviePage() {
       ...prevData,
       [name]: newValue,
     }));
-    console.log();
   };
 
   return (

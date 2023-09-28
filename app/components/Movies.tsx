@@ -7,11 +7,11 @@ type movieProps = {
   subscriptions: string[];
 };
 
-function Movies({ movies, user, subscriptions }: movieProps) {
+function Movies({ movies, user, subscriptions }: movieProps) {    
   return (
     <div className="flex justify-center flex-wrap gap-3">
       {movies?.map((movie, index) => {
-        const isSubscribed = subscriptions.some((sub) => sub === movie._id + '');
+        const isSubscribed = subscriptions?.some((sub) => sub === movie._id + '');
         return <MovieItem movie={movie} key={movie._id || index} user={user} isSubscribed={isSubscribed} />;
       })}
     </div>

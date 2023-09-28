@@ -2,6 +2,7 @@ import mongoose, { Document, Model, Schema, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 interface IUser extends Document {
+  name: string;
   email: string;
   password: string;
   sessionTimeOut: Number; // New field for userId
@@ -9,6 +10,10 @@ interface IUser extends Document {
 }
 
 const userSchema: Schema<IUser> = new mongoose.Schema({
+  name: {
+    type: String,
+    minLength: [6, 'Your name must be longer than 2 characters']
+  },
   email: {
     type: String,
     required: [true, 'Please enter your email'],

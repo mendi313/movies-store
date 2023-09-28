@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Gener from './Gener';
@@ -5,25 +6,37 @@ import { DefaultSession } from 'next-auth';
 import '../css/Movies.css'; // Import your custom CSS file
 import { useRouter } from 'next/navigation';
 import addSubscription from '@/lib/addSubscription';
-import { useState } from 'react';
+import { ContextValue } from '../context/Context';
 
-type movieProps = {
+type MovieProps = {
   movie: Movie;
   user: ({ id: string; role: string } & DefaultSession) | undefined;
   isSubscribed: boolean;
 };
 
-function Movie({ movie, user, isSubscribed }: movieProps) {
-  const [add, setAdd] = useState(isSubscribed);
+function Movie({ movie, user, isSubscribed }: MovieProps) {
+
+  const { subscriptions, setSubscriptions } = ContextValue();
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  function addMovieHandle() {
+
+  async function addMovieHandle() {
     if (!user) {
       router.push('/login');
     } else {
-      addSubscription(user.id, movie._id + '', isSubscribed);
-      setAdd((prev) => !prev);
+      setIsLoading(true);
+      try {
+        const res = await addSubscription(user.id, movie._id + '', isSubscribed);
+        setSubscriptions(res.data?.movies);
+        // setAdd((prev) => !prev);
+      } catch (error) {
+        // Handle errors from addSubscription
+      } finally {
+        setIsLoading(false);
+      }
     }
   }
+
   return (
     <Card className="flex justify-center flex-wrap" style={{ width: '14rem' }}>
       <div className="aspect-w-16 aspect-h-9">
@@ -45,8 +58,13 @@ function Movie({ movie, user, isSubscribed }: movieProps) {
         </div>
       </Card.Body>
       <Card.Footer className="text-muted">
-        <Button onClick={addMovieHandle} className={'w-[5rem] text-xl defaultButton hover:hoveredButton'} variant="primary">
-          {add ? '-' : '+'}
+        <Button
+          onClick={addMovieHandle}
+          className={'w-[5rem] disabled:bg-gray-400 text-xl defaultButton hover:hoveredButton'}
+          variant="primary"
+          disabled={isLoading} // Disable the button if isLoading is true
+        >
+          {isSubscribed ? '-' : '+'}
         </Button>
       </Card.Footer>
     </Card>

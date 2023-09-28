@@ -6,12 +6,12 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import getAllSubscriptions from '@/lib/getAllSubscriptions';
 import getAllMovies from '@/lib/getAllMovies';
+import { ContextValue } from './context/Context';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchkey, setSearchkey] = useState('');
-  const [subscriptions, setSubscriptions] = useState<string[]>([]);
-  const [movies, setMovies] = useState<Movie[]>([]);
+  const { movies, setMovies, subscriptions, setSubscriptions } = ContextValue();
   const filterdMovies = movies.filter((movie) => movie.name.toLowerCase().includes(searchkey));
   const { data: session } = useSession();
 
@@ -27,12 +27,14 @@ export default function Home() {
         setSubscriptions(subscriptions);
       }
     }
-    getMovies();
-    getSubscriptions();
-  }, [session]);
+    if (!movies.length) {
+      getMovies();
+    } else setIsLoading(false);
+    if (!subscriptions?.length) getSubscriptions();
+  }, [movies?.length, session, setMovies, setSubscriptions, subscriptions?.length]);
   return (
     !isLoading && (
-      <main className="mt-6 flex text-center items-center flex-col min-h-screen gap-4 p-24">
+      <main className="flex text-center items-center flex-col gap-4 p-24">
         {session?.user?.role === 'admin' ? (
           <Link href="/addMovie">
             <span className="bg-blue-800 p-3 py-3 rounded-md text-white hover:bg-blue-900">Add Movie</span>
