@@ -12,7 +12,7 @@ export default function Subscriptions() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchkey, setSearchkey] = useState('');
   const { movies, setMovies, subscriptions, setSubscriptions } = ContextValue();
-  const filterdMovies = movies?.filter((m) => m._id && subscriptions?.includes(m._id.toString()));
+ 
 
   const { data: session } = useSession({
     required: true,
@@ -38,7 +38,7 @@ export default function Subscriptions() {
   return (
     <main className="mt-6 flex text-center items-center flex-col min-h-screen gap-4 p-24">
       <h1 className="text-3xl font-bold text-white">Subscriptions</h1>
-      <Movies movies={filterdMovies} user={session?.user} subscriptions={subscriptions} />
+      <Movies user={session?.user} filtersubScriptions={true} subscriptions={subscriptions} />
     </main>
   );
 }

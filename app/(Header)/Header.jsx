@@ -29,6 +29,11 @@ const Header = async () => {
               <Link href="/userManagment">User Managment</Link>
             </div>
           ) : null}
+          {session?.user?.role === 'admin' ? (
+            <div>
+              <Link href="/moviesManagment">Movies Managment</Link>
+            </div>
+          ) : null}
           {session?.user ? (
             <div>
               <Link href="/api/auth/signout">Log Out</Link>

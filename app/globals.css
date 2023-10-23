@@ -6,3 +6,7 @@
 body {
  @apply min-h-screen flex items-center justify-center bg-slate-700/50;
 }
+
+.input{
+    @apply appearance-none border border-gray-200 bg-gray-200 rounded-md py-2 px-3 hover:border-gray-400 hover:bg-gray-300 focus:outline-none focus:bg-slate-100 focus:border-gray-400 w-full
+}

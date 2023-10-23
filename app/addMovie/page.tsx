@@ -1,31 +1,39 @@
 'use client';
 import axios from 'axios';
+import addMovie from '@/lib/addMovie';
+import updateMovie from '@/lib/updateMovie';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import Select from 'react-select';
+import makeAnimated from 'react-select/animated';
+import { ContextValue } from '../context/Context';
 
 const genres = [
-  { value: 'action', label: 'Action' },
-  { value: 'adventure', label: 'Adventure' },
-  { value: 'comedy', label: 'Comedy' },
-  { value: 'drama', label: 'Drama' },
-  { value: 'fantasy', label: 'Fantasy' },
-  { value: 'horror', label: 'Horror' },
-  { value: 'science_fiction', label: 'Science Fiction' },
-  { value: 'romance', label: 'Romance' },
-  { value: 'thriller', label: 'Thriller' },
-  { value: 'animation', label: 'Animation' },
-  { value: 'documentary', label: 'Documentary' },
-  { value: 'crime', label: 'Crime' },
-  { value: 'family', label: 'Family' },
-] as { value: string; label: string }[];
+  'action',
+  'adventure',
+  'comedy',
+  'drama',
+  'fantasy',
+  'horror',
+  'science-fiction',
+  'romance',
+  'thriller',
+  'animation',
+  'documentary',
+  'crime',
+  'family',
+];
 
 export default function AddMoviePage() {
+  const animatedComponents = makeAnimated();
+  const { editedMovie, setEditedMovie, setMovies } = ContextValue();
+
   const router = useRouter();
   const [formData, setFormData] = useState<Movie>({
-    name: '',
-    genres: [],
-    url: '',
-    premiered: '',
+    name: editedMovie?.name || '',
+    genres: editedMovie?.genres || [],
+    url: editedMovie?.image?.original || '',
+    premiered: editedMovie?.premiered || '',
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
@@ -34,7 +42,6 @@ export default function AddMoviePage() {
 
     const errors: Record<string, string> = {};
 
-    // Check required fields and set errors
     if (!formData.name) {
       errors.name = 'Please enter a name.';
     }
@@ -44,35 +51,42 @@ export default function AddMoviePage() {
     if (!formData.url) {
       errors.image = 'Please enter an image URL.';
     }
+    if (!formData.premiered) {
+      errors.premiered = 'Please enter an premiered.';
+    }
 
-    // Update form errors state
     setFormErrors(errors);
 
-    // If there are errors, stop form submission
     if (Object.keys(errors).length > 0) {
       return;
     }
+    if (editedMovie) {
+      editedMovie.name = formData.name;
+      editedMovie.genres = formData.genres;
+      editedMovie.premiered = formData.premiered;
+      if (editedMovie && editedMovie.image) {
+        // Check if editedMovie and editedMovie.image are not undefined
+        editedMovie.image.original = formData.url;
+      }
 
-    await axios.post('http://localhost:3000/api/movies', formData).then((res) => {
-      router.push('/');
-    });
-    // Add logic to handle form submission (e.g., sending data to server)
-  };
-
-  const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
-
-    setFormData((prevData) => ({
-      ...prevData,
-      genres: selectedOptions,
-    }));
+      await updateMovie(editedMovie);
+      setEditedMovie(null);
+    } else {
+     const movies = await addMovie(formData);   
+     setMovies(movies);
+    }
+    router.push('/moviesManagment');
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    let newValue = value;
 
-    // For the date input, convert the value to a Date object
-    const newValue = name === 'premiered' ? new Date(value) : value;
+    if (name === 'premiered') {
+      // Convert the date to 'yyyy-MM-dd' format
+      const date = new Date(value);
+      newValue = date.toISOString().split('T')[0];
+    }
 
     setFormData((prevData) => ({
       ...prevData,
@@ -80,8 +94,14 @@ export default function AddMoviePage() {
     }));
   };
 
+  // Convert genres to an array of objects for Select component
+  const genreOptions = genres.map((genre) => ({
+    value: genre,
+    label: genre,
+  }));
+
   return (
-    <div className="mx-auto max-w-md p-5">
+    <div className="mx-auto max-w-lg w-[30rem] p-5">
       <h2 className="pb-7 text-2xl">Contact Form</h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         <div className="flex justify-between items-center">
@@ -91,7 +111,7 @@ export default function AddMoviePage() {
             className="rounded-md flex-1"
             type="text"
             placeholder="Movie Name"
-            name="Name"
+            name="name"
             value={formData.name}
             onChange={handleInputChange}
           />
@@ -99,20 +119,21 @@ export default function AddMoviePage() {
         {formErrors.name && <div className="text-red-600">{formErrors.name}</div>}
         <div className="flex justify-between items-center">
           <label htmlFor="genre">Genres:</label>
-          <select
-            id="genre"
-            name="Genre"
-            className="w-3/5 px-4 py-2 mt-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-300"
-            value={formData.genres} // Update the value attribute to be an array of genre values
-            onChange={handleGenreChange}
-            multiple // Enable multiple selections
-          >
-            {genres.map((genre) => (
-              <option key={genre.label} value={genre.value}>
-                {genre.label}
-              </option>
-            ))}
-          </select>
+          <Select
+          className='w-4/5'
+            id={`genre-select-${Date.now()}`}
+            closeMenuOnSelect={false}
+            components={animatedComponents}
+            isMulti
+            options={genreOptions} // Use genreOptions for the options
+            value={genreOptions.filter((genre) => formData.genres.some((selectedGenre) => selectedGenre.toLowerCase() === genre.value.toLowerCase()))} // Perform case-insensitive matching
+            onChange={(selectedGenres) => {
+              setFormData((prevData) => ({
+                ...prevData,
+                genres: selectedGenres.map((genre) => genre.value),
+              }));
+            }}
+          />
         </div>
         {formErrors.genres && <div className="text-red-600">{formErrors.genres}</div>}
         <div className="flex justify-between items-center">
@@ -122,7 +143,7 @@ export default function AddMoviePage() {
             className="rounded-md flex-1"
             type="text"
             placeholder="Image URL"
-            name="Image"
+            name="url"
             value={formData.url}
             onChange={handleInputChange}
           />
@@ -132,9 +153,9 @@ export default function AddMoviePage() {
           <label htmlFor="premiered">Premiered:</label>
           <input id="premiered" className="rounded-md" type="date" name="premiered" value={formData.premiered} onChange={handleInputChange} />
         </div>
-
+        {formErrors.premiered && <div className="text-red-600">{formErrors.premiered}</div>}
         <button className="bg-blue-600 p-3 py-2 rounded-md" type="submit" onClick={handleSubmit}>
-          Submit
+          {editedMovie ? 'Update' : 'Submit'}
         </button>
       </form>
     </div>

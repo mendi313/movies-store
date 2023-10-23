@@ -1,8 +1,12 @@
 'use client';
 import Link from 'next/link';
 import React, { useState } from 'react';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useSession } from 'next-auth/react';
+import Roles from '@/data/Roels.json';
 
 const RegisterForm = ({ formData, userData }: { formData: FormInputsData; userData?: User }) => {
+  const { data: session } = useSession();
   const [name, setName] = useState(userData?.name || '');
   const [email, setEmail] = useState(userData?.email || '');
   const [role, setRole] = useState(userData?.role || '');
@@ -62,14 +66,7 @@ const RegisterForm = ({ formData, userData }: { formData: FormInputsData; userDa
         {formData.state !== 'login' && (
           <div className="mb-4">
             <label className="block mb-1"> Full Name </label>
-            <input
-              className="appearance-none border border-gray-200 bg-gray-100 rounded-md py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400 w-full"
-              type="text"
-              placeholder="Type your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+            <input className="input" type="text" placeholder="Type your name" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
         )}
 
@@ -77,9 +74,7 @@ const RegisterForm = ({ formData, userData }: { formData: FormInputsData; userDa
           <div className="mb-4">
             <label className="block mb-1"> Email </label>
             <input
-              className={`appearance-none border border-gray-200 bg-gray-100 rounded-md py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400 w-full ${
-                emailError ? 'border-red-500' : ''
-              }`}
+              className={`input ${emailError ? 'border-red-500' : ''}`}
               type="text"
               placeholder="Type your email"
               value={email}
@@ -95,7 +90,7 @@ const RegisterForm = ({ formData, userData }: { formData: FormInputsData; userDa
           <div className="mb-4">
             <label className="block mb-1"> Password </label>
             <input
-              className="appearance-none border border-gray-200 bg-gray-100 rounded-md py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400 w-full"
+              className="input"
               type="password"
               placeholder="Type your password"
               minLength={6}
@@ -109,13 +104,25 @@ const RegisterForm = ({ formData, userData }: { formData: FormInputsData; userDa
         {(formData.state === 'addUser' || formData.state === 'editUser') && (
           <div className="mb-4">
             <label className="block mb-1"> Role </label>
-            <input
-              className="appearance-none border border-gray-200 bg-gray-100 rounded-md py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400 w-full"
-              type="text"
-              placeholder="Type your role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-            />
+            <div className="bg-slate-50">
+              <Select value={role} disabled={userData?._id === session?.user?.id.toString()} onValueChange={(value) => setRole(value)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup className="bg-slate-50">
+                    {/* <SelectLabel>User</SelectLabel> */}
+                    {Roles?.map((role, index) => {
+                      return (
+                        <SelectItem key={index} value={role}>
+                          {role}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         )}
 

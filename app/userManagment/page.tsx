@@ -8,7 +8,7 @@ import { ContextValue } from '../context/Context';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
-export default function UserManagement() {
+export default function MoviesManagment() {
   const { data: session } = useSession();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
@@ -44,9 +44,9 @@ export default function UserManagement() {
         <Link href="/addUser">Create Another User</Link>
       </button>
       <div className="flex justify-center flex-wrap gap-3">
-        {users.map((user) => (
+        {users?.map((user) => (
           <UserCard
-            showDeleteButton= {user._id !== session?.user?.id.toString() }
+            showDeleteButton={user._id !== session?.user?.id.toString()}
             key={user.email}
             name={user.name}
             email={user.email}

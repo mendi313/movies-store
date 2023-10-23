@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const newMovie: Movie = await request.json();
+    newMovie.image = { medium: newMovie.url, original: newMovie.url };
 
     // Validate input data
     if (!newMovie.name) {
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json('Genres is required', { status: 400 });
     }
 
-    if (!newMovie.image || !newMovie.image.medium || !newMovie.image.original) {
+    if (!newMovie.image || !newMovie.image.original) {
       return NextResponse.json('Image is required with medium and original URLs', { status: 400 });
     }
 
@@ -46,7 +47,8 @@ export async function POST(request: NextRequest) {
     }
 
     const response = await Movies.create(newMovie);
-    return NextResponse.json(response, { status: 201 });
+    const movies = await Movies.find();
+    return NextResponse.json(movies, { status: 201 });
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(error.message);
@@ -59,8 +61,9 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const id = request.nextUrl.searchParams.get('id');
   try {
-    const res = await Movies.findByIdAndDelete(id);
-    return NextResponse.json(res);
+    await Movies.findByIdAndDelete(id);
+    const movies = await Movies.find();
+    return NextResponse.json(movies);
   } catch (e: unknown) {
     if (e instanceof Error) {
       throw new Error(e.message);
@@ -71,10 +74,9 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const id = request.nextUrl.searchParams.get('id');
-  const { name, genres, image, premiered }: Movie = await request.json();
+  const { name, genres, image, premiered, _id }: Movie = await request.json();
   try {
-    const res = await Movies.findByIdAndUpdate(id, { name, genres, image, premiered });
+    const res = await Movies.findByIdAndUpdate(_id, { name, genres, image, premiered });
     return NextResponse.json(res);
   } catch (e: unknown) {
     if (e instanceof Error) {

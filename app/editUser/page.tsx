@@ -13,7 +13,7 @@ const EditUser = () => {
     let userData = null;
     if (name) userData = await updateUser({ _id: editedUser?._id, name, role });
     router.push('/userManagment');
-    setEditedUser(null)
+    setEditedUser(null);
   };
 
   const formState: FormInputsData = {

@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import getAllSubscriptions from '@/lib/getAllSubscriptions';
-import { ContextValue } from './context/Context';
+import { ContextValue } from '@/app/context/Context';
 
-export default function Home() {
+export default function MoviesManagment() {
   const [searchkey, setSearchkey] = useState('');
   const { subscriptions, setSubscriptions } = ContextValue();
   const { data: session } = useSession();
@@ -34,7 +34,7 @@ export default function Home() {
         placeholder="Search"
         onChange={(e) => setSearchkey(e.target.value.toLowerCase())}
       />
-      <Movies searchkey={searchkey} user={session?.user} subscriptions={subscriptions} />
+      <Movies searchkey={searchkey} user={session?.user} managment={true} />
     </main>
   );
 }

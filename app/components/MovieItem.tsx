@@ -7,16 +7,17 @@ import '../css/Movies.css'; // Import your custom CSS file
 import { useRouter } from 'next/navigation';
 import addSubscription from '@/lib/addSubscription';
 import { ContextValue } from '../context/Context';
+import deleteMovie from '@/lib/deleteMovie';
 
 type MovieProps = {
   movie: Movie;
   user: ({ id: string; role: string } & DefaultSession) | undefined;
   isSubscribed: boolean;
+  managment?: boolean;
 };
 
-function Movie({ movie, user, isSubscribed }: MovieProps) {
-
-  const { subscriptions, setSubscriptions } = ContextValue();
+function Movie({ movie, user, isSubscribed, managment }: MovieProps) {
+  const { setEditedMovie, setSubscriptions, setMovies } = ContextValue();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -28,13 +29,22 @@ function Movie({ movie, user, isSubscribed }: MovieProps) {
       try {
         const res = await addSubscription(user.id, movie._id + '', isSubscribed);
         setSubscriptions(res.data?.movies);
-        // setAdd((prev) => !prev);
       } catch (error) {
-        // Handle errors from addSubscription
+        console.log(error);
       } finally {
         setIsLoading(false);
       }
     }
+  }
+
+  function onEdit(): void {
+    setEditedMovie(movie);
+    router.push('/addMovie');
+  }
+
+  async function onDelete() {
+    const movies = await deleteMovie(movie._id + '');
+    setMovies(movies);
   }
 
   return (
@@ -58,14 +68,25 @@ function Movie({ movie, user, isSubscribed }: MovieProps) {
         </div>
       </Card.Body>
       <Card.Footer className="text-muted">
-        <Button
-          onClick={addMovieHandle}
-          className={'w-[5rem] disabled:bg-gray-400 text-xl defaultButton hover:hoveredButton'}
-          variant="primary"
-          disabled={isLoading} // Disable the button if isLoading is true
-        >
-          {isSubscribed ? '-' : '+'}
-        </Button>
+        {!managment ? (
+          <Button
+            onClick={addMovieHandle}
+            className={'w-[5rem] disabled:bg-gray-400 text-xl defaultButton hover:hoveredButton'}
+            variant="primary"
+            disabled={isLoading} // Disable the button if isLoading is true
+          >
+            {isSubscribed ? '-' : '+'}
+          </Button>
+        ) : (
+          <div className="flex gap-2 w-full justify-center">
+            <button className="bg-yellow-500 hover:bg-yellow-300 text-white font-bold py-2 px-4 rounded" onClick={onEdit}>
+              Edit
+            </button>
+            <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onDelete}>
+              Delete
+            </button>
+          </div>
+        )}
       </Card.Footer>
     </Card>
   );
