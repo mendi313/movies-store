@@ -14,10 +14,10 @@ const Header = async () => {
   }
 
   return (
-    <nav className='w-full bg-black fixed top-0 left-0 right-0 z-10'>
-      <div className="bg-slate-700 w-full text-white p-3 flex gap-[2rem]">
+    <nav className='w-full max-[770px]:text-[0.6rem] bg-black fixed top-0 left-0 right-0 z-10'>
+      <div className="bg-slate-700 w-full text-white p-3 flex max-[770px]:gap-[0.5rem] gap-[2rem]">
         {displayName && <p className="left-10 text-white">Hello {displayName}</p>}
-        <div className="mx-auto flex gap-[2rem]">
+        <div className="mx-auto flex max-[770px]:gap-[1rem] gap-[2rem]">
           <div>
             <Link href="/">Movies</Link>
           </div>
