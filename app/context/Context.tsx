@@ -2,7 +2,7 @@
 import { createContext, useContext, useState, Dispatch, SetStateAction } from 'react';
 
 const ContentContext = createContext<{
-  movies: Movie[] | [];
+  movies: Movie[];
   subscriptions: string[];
   editedUser: User | null;
   editedMovie: Movie | null;

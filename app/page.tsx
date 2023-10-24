@@ -24,7 +24,7 @@ export default function Home() {
   return (
     <main className="mt-[7rem] w-full min-h-screen">
       <div className="p-4 md:p-0 mx-auto flex flex-col md:flex-row items-center justify-center">
-        {session?.user?.role === 'admin' ? (
+        {session?.user?.role === 'admin' || session?.user?.role === 'superAdmin' ? (
           <Link href="/addMovie">
             <span className="bg-blue-800 p-3 rounded-md text-white hover:bg-blue-900 mb-4 md:mb-0 md:mr-4">Add Movie</span>
           </Link>

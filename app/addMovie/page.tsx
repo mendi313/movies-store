@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
 import { ContextValue } from '../context/Context';
+import { useSession } from 'next-auth/react';
 
 const genres = [
   'action',
@@ -25,8 +26,9 @@ const genres = [
 ];
 
 export default function AddMoviePage() {
+  const { data: session } = useSession();
   const animatedComponents = makeAnimated();
-  const { editedMovie, setEditedMovie, setMovies } = ContextValue();
+  const { editedMovie, setEditedMovie, setMovies, movies } = ContextValue();
 
   const router = useRouter();
   const [formData, setFormData] = useState<Movie>({
@@ -72,8 +74,13 @@ export default function AddMoviePage() {
       await updateMovie(editedMovie);
       setEditedMovie(null);
     } else {
-     const movies = await addMovie(formData);   
-     setMovies(movies);
+      if (session?.user?.role === 'superAdmin') {
+        const movies = await addMovie(formData);
+        setMovies(movies);
+      } else{
+        const fakeMovies = movies.concat(formData)
+        setMovies(fakeMovies);
+      } 
     }
     router.push('/moviesManagment');
   };
@@ -120,7 +127,7 @@ export default function AddMoviePage() {
         <div className="flex justify-between items-center">
           <label htmlFor="genre">Genres:</label>
           <Select
-          className='w-4/5'
+            className="w-4/5"
             id={`genre-select-${Date.now()}`}
             closeMenuOnSelect={false}
             components={animatedComponents}

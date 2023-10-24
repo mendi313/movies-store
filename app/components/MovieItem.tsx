@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import addSubscription from '@/lib/addSubscription';
 import { ContextValue } from '../context/Context';
 import deleteMovie from '@/lib/deleteMovie';
+import { useSession } from 'next-auth/react';
 
 type MovieProps = {
   movie: Movie;
@@ -17,11 +18,12 @@ type MovieProps = {
 };
 
 function Movie({ movie, user, isSubscribed, managment }: MovieProps) {
-  const { setEditedMovie, setSubscriptions, setMovies } = ContextValue();
+  const { data: session } = useSession();
+  const { setEditedMovie, setSubscriptions, setMovies, movies } = ContextValue();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  async function addMovieHandle() {
+  async function addSubscriptionsHandle() {
     if (!user) {
       router.push('/login');
     } else {
@@ -43,8 +45,12 @@ function Movie({ movie, user, isSubscribed, managment }: MovieProps) {
   }
 
   async function onDelete() {
-    const movies = await deleteMovie(movie._id + '');
-    setMovies(movies);
+    if (session?.user?.role === 'superAdmin') {
+      const movies = await deleteMovie(movie._id + '');
+      setMovies(movies);
+    } else {
+      setMovies(movies.filter((movie) => movie._id !== movie._id));
+    }
   }
 
   return (
@@ -70,7 +76,7 @@ function Movie({ movie, user, isSubscribed, managment }: MovieProps) {
       <Card.Footer className="text-muted">
         {!managment ? (
           <Button
-            onClick={addMovieHandle}
+            onClick={addSubscriptionsHandle}
             className={'w-[5rem] disabled:bg-gray-400 text-xl defaultButton hover:hoveredButton'}
             variant="primary"
             disabled={isLoading} // Disable the button if isLoading is true
