@@ -4,12 +4,18 @@ import Subscription from '@/backend/models/subscription';
 
 connectDB();
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const id = request.nextUrl.searchParams.get('id');
     if (id) {
       const subscription = await Subscription.findOne({ userId: id });
-      return NextResponse.json(subscription);
+      if (subscription) {
+        return NextResponse.json(subscription);
+      } else {
+        return NextResponse.json({ message: 'Subscription not found' }, { status: 404 });
+      }
+    } else {
+      return NextResponse.json({ message: 'ID parameter is missing' }, { status: 400 });
     }
   } catch (e: unknown) {
     if (e instanceof Error) {
