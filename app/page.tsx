@@ -6,6 +6,7 @@ import Movies from '@/app/components/Movies';
 import getAllSubscriptions from '@/lib/getAllSubscriptions';
 import { ContextValue } from './context/Context';
 
+
 export default function Home() {
   const [searchkey, setSearchkey] = useState('');
   const { subscriptions, setSubscriptions } = ContextValue();

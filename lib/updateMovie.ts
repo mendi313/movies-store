@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 export default async function updateMovie(movie: Movie): Promise<any> {
   if (!movie) return null;
   try {
-    const res: AxiosResponse<Movie> = await axios.put('http://localhost:3000/api/movies', movie);
+    const res: AxiosResponse<Movie> = await axios.put(`${process.env.NEXT_PUBLIC_SERVER_URL}movies`, movie);
     return res.data; // Extract data from the Axios response
   } catch (error) {
     console.error('Error update movie:', error);

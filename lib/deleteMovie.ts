@@ -4,7 +4,7 @@ export default async function deleteMovie(movieId: string): Promise<Movie[]> {
   if (!movieId) return [];
 
   try {
-    const res: AxiosResponse<Movie[]> = await axios.delete('http://localhost:3000/api/movies?id=' + movieId);
+    const res: AxiosResponse<Movie[]> = await axios.delete(`${process.env.NEXT_PUBLIC_SERVER_URL}movies?id=` + movieId);
     return res.data; // Extract data from the Axios response
   } catch (error) {
     console.error('Error deleting movie:', error);

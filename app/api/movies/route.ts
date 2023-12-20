@@ -4,7 +4,7 @@ import Movies from '@/backend/models/movies';
 
 connectDB();
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest) {  
   try {
     const id = request.nextUrl.searchParams.get('id');
     if (id) {

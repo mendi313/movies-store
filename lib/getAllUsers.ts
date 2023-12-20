@@ -4,8 +4,8 @@ import axios from 'axios';
 
 export default async function getAllUsers(): Promise<User[]> {
   try {
-    const res = await axios.get('http://localhost:3000/api/users');
-    const { permissionResult, userResult }: { permissionResult: Permission[], userResult: User[] } = res.data;
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}users`);
+    const { permissionResult, userResult }: { permissionResult: Permission[]; userResult: User[] } = res.data;
 
     const userMap: { [userId: string]: { role: string } } = {};
 
