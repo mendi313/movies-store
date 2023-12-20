@@ -1,4 +1,5 @@
 type User = {
+  id: string; // Add an 'id' property to match NextAuth expectations
   name: string;
   _id?: string;
   email?: string;
