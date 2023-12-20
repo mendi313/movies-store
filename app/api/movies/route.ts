@@ -1,88 +1,82 @@
 import { connectDB } from '@/connect/connect';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextApiRequest, NextApiResponse } from 'next';
 import Movies from '@/backend/models/movies';
+import Cors from 'cors';
 
+// Database connection setup
 connectDB();
 
-export async function GET(request: NextRequest) {  
-  try {
-    const id = request.nextUrl.searchParams.get('id');
-    if (id) {
-      const movie = await Movies.findById(id);
-      if (movie) {
-        return NextResponse.json(movie);
+// Initialize CORS middleware
+const cors = Cors({
+  origin: 'https://movies-store-4c30jvdxv-mendi313.vercel.app/', // Replace with your frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+});
+
+// Helper function to apply CORS middleware to Next.js API route
+function applyCors(req: NextApiRequest, res: NextApiResponse) {
+  return new Promise((resolve, reject) => {
+    cors(req, res, (result) => {
+      if (result instanceof Error) {
+        return reject(result);
       }
-    }
-    const res = await Movies.find();
-    return NextResponse.json(res);
-  } catch (e: unknown) {
-    if (e instanceof Error) {
-      throw new Error(e.message);
-    } else {
-      throw new Error('An unknown error occurred');
-    }
-  }
+      return resolve(result);
+    });
+  });
 }
 
-export async function POST(request: NextRequest) {
+export default async function handler(request: NextApiRequest, response: NextApiResponse) {
+  // Apply CORS middleware to the request
   try {
-    const newMovie: Movie = await request.json();
-    newMovie.image = { medium: newMovie.url, original: newMovie.url };
-
-    // Validate input data
-    if (!newMovie.name) {
-      return NextResponse.json('Name is required', { status: 400 });
-    }
-
-    if (!newMovie.genres || newMovie.genres.length === 0) {
-      return NextResponse.json('Genres is required', { status: 400 });
-    }
-
-    if (!newMovie.image || !newMovie.image.original) {
-      return NextResponse.json('Image is required with medium and original URLs', { status: 400 });
-    }
-
-    if (!newMovie.premiered) {
-      return NextResponse.json('Premiered is required', { status: 400 });
-    }
-
-    const response = await Movies.create(newMovie);
-    const movies = await Movies.find();
-    return NextResponse.json(movies, { status: 201 });
+    await applyCors(request, response);
   } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(error.message);
-    } else {
-      throw new Error('An unknown error occurred');
-    }
+    response.status(500).json({ error: 'Unable to apply CORS' });
+    return;
   }
-}
 
-export async function DELETE(request: NextRequest) {
-  const id = request.nextUrl.searchParams.get('id');
-  try {
-    await Movies.findByIdAndDelete(id);
-    const movies = await Movies.find();
-    return NextResponse.json(movies);
-  } catch (e: unknown) {
-    if (e instanceof Error) {
-      throw new Error(e.message);
-    } else {
-      throw new Error('An unknown error occurred');
+  // Handle different HTTP methods (GET, POST, PUT, DELETE)
+  if (request.method === 'GET') {
+    try {
+      const id = request.query.id; // Use request.query for query parameters
+      if (id) {
+        const movie = await Movies.findById(id);
+        if (movie) {
+          response.status(200).json(movie);
+          return;
+        }
+      }
+      const movies = await Movies.find();
+      response.status(200).json(movies);
+    } catch (error) {
+      response.status(500).json({ error: 'An unknown error occurred' });
     }
-  }
-}
-
-export async function PUT(request: NextRequest) {
-  const { name, genres, image, premiered, _id }: Movie = await request.json();
-  try {
-    const res = await Movies.findByIdAndUpdate(_id, { name, genres, image, premiered });
-    return NextResponse.json(res);
-  } catch (e: unknown) {
-    if (e instanceof Error) {
-      throw new Error(e.message);
-    } else {
-      throw new Error('An unknown error occurred');
+  } else if (request.method === 'POST') {
+    try {
+      const newMovie = await request.body;
+      // Validate and create logic
+      const createdMovie = await Movies.create(newMovie);
+      const movies = await Movies.find();
+      response.status(201).json(movies);
+    } catch (error) {
+      response.status(500).json({ error: 'An unknown error occurred' });
     }
+  } else if (request.method === 'PUT') {
+    try {
+      const { id, ...updatedMovie } = await request.body;
+      const updated = await Movies.findByIdAndUpdate(id, updatedMovie, { new: true });
+      response.status(200).json(updated);
+    } catch (error) {
+      response.status(500).json({ error: 'An unknown error occurred' });
+    }
+  } else if (request.method === 'DELETE') {
+    try {
+      const { id } = await request.body;
+      await Movies.findByIdAndDelete(id);
+      const movies = await Movies.find();
+      response.status(200).json(movies);
+    } catch (error) {
+      response.status(500).json({ error: 'An unknown error occurred' });
+    }
+  } else {
+    response.status(405).json({ error: 'Method not allowed' });
   }
 }
