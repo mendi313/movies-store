@@ -4,9 +4,7 @@ import { NextResponse } from "next/server"
 
 export default withAuth(
     // `withAuth` augments your `Request` with the user's token.
-    function middleware(request: NextRequestWithAuth) {
-        console.log(123);
-        
+    function middleware(request: NextRequestWithAuth) {        
         if (request.nextUrl.pathname.startsWith("/userManagment")
             && request.nextauth.token?.role !== "superAdmin") {
             return NextResponse.rewrite(

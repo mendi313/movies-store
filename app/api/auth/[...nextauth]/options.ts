@@ -33,7 +33,7 @@ export const options: NextAuthOptions = {
 
         dbConnect();
 
-        const { email, password } = credentials;
+        const { email } = credentials;
 
         const userDocument = await User.findOne({ email }).select('+password');
         if (!userDocument) {
@@ -60,13 +60,29 @@ export const options: NextAuthOptions = {
         // Assign the role property to the user from permission
         user.role = permission.role;
 
-        // Ensure the user object matches the User type (with 'id' property)
         return { ...user, id: user._id } as User;
       },
     }),
   ],
   callbacks: {
-    // ... other callback functions as needed
+    async jwt({ token, user }) {
+      if (user) token.role = user.role;
+      return token;
+    },
+    // If you want to use the role in client components
+    async session({ session, token }) {
+      if (!session?.user?.id) {
+        const email = token.email; // Assuming token.email holds the email you want to search for
+        try {
+          const user = await User.findOne({ email }).select('+password');
+          if (session?.user) session.user.id = user?._id;
+        } catch (error) {
+          console.error('Error finding user:', error);
+        }
+      }
+      if (session?.user) session.user.role = token.role;
+      return session;
+    },
   },
   pages: {
     signIn: '/login',
