@@ -10,10 +10,15 @@ const EditUser = () => {
 
   const submitHandler = async (formInputsData: { role: string; name: string }) => {
     const { name, role } = formInputsData;
-    let userData = null;
-    if (name) userData = await updateUser({ _id: editedUser?._id, name, role });
-    router.push('/userManagment');
-    setEditedUser(null);
+
+    if (editedUser?._id && name) {
+      const userData = await updateUser({ id: editedUser._id, name, role });
+      router.push('/userManagment');
+      setEditedUser(null);
+    } else {
+      // Handle the case when _id or name is missing
+      console.error('Invalid user data or _id missing.');
+    }
   };
 
   const formState: FormInputsData = {
@@ -22,7 +27,11 @@ const EditUser = () => {
     func: submitHandler,
   };
 
-  return <div>{editedUser && <RegisterForm formData={formState} userData={editedUser} />};</div>;
+  return (
+    <div>
+      {editedUser && <RegisterForm formData={formState} userData={editedUser} />}
+    </div>
+  );
 };
 
 export default EditUser;
